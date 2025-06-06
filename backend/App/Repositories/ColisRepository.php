@@ -1,0 +1,143 @@
+<?php
+
+namespace App\Repositories;
+
+use App\Models\Colis;
+use App\Models\ColisStandard;
+use App\Models\ColisExpress;
+use Core\Facades\RepositoryCache;
+
+class ColisRepository extends RepositoryCache
+{
+    private array $colis = [];
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    public function findAllColis(): array
+    {
+        return array_values($this->colis);
+    }
+
+    public function findById($id): ?Colis
+    {
+        $data = $this->colis[$id] ?? null;
+        if (is_array($data)) {
+            return $this->mapper($data);
+        }
+
+        return $data instanceof Colis ? $data : null;
+    }
+
+    public function updateColis($id, array $data): bool
+    {
+
+        if (!isset($this->colis[$id])) {
+            return false;
+        }
+
+        $colis = $this->mapper($this->colis[$id]);
+
+        if (isset($data['poids'])) {
+            $colis->setPoids($data['poids']);
+        }
+        if (isset($data['dimensions'])) {
+            $colis->setDimensions($data['dimensions']);
+        }
+        if (isset($data['destination'])) {
+            $colis->setDestination($data['destination']);
+        }
+        if (isset($data['tarif'])) {
+            $colis->setTarif($data['tarif']);
+        }
+        if (isset($data['statut'])) {
+            $colis->setStatut($data['statut']);
+        }
+
+      
+        if ($colis instanceof ColisStandard) {
+            if (isset($data['delaiLivraison'])) {
+                $colis->setDelaiLivraison($data['delaiLivraison']);
+            }
+            if (isset($data['assuranceIncluse'])) {
+                $colis->setAssuranceIncluse($data['assuranceIncluse']);
+            }
+        } elseif ($colis instanceof ColisExpress) {
+            if (isset($data['priorite'])) {
+                $colis->setPriorite($data['priorite']);
+            }
+            if (isset($data['livraisonUrgente'])) {
+                $colis->setLivraisonUrgente($data['livraisonUrgente']);
+            }
+        }
+
+        $this->colis[$id] = $colis;
+        $this->commit();
+
+        return true;
+    }
+
+    public function deleteColis($id): bool
+    {
+        if (!isset($this->colis[$id])) {
+            return false;
+        }
+
+        unset($this->colis[$id]);
+        $this->commit();
+
+        return true;
+    }
+
+    public function saveColis(Colis $colis): bool
+    {
+        $this->colis[$colis->getId()] = $colis;
+        $this->commit();
+        return true;
+    }
+
+    private function mapper(array $data): Colis
+    {
+        if (!isset($data['type'])) {
+            throw new \Exception("Type de colis non défini dans les données.");
+        }
+
+        if ($data['type'] === 'standard') {
+            return new ColisStandard(
+                $data['id'],
+                $data['poids'],
+                $data['dimensions'],
+                $data['destination'],
+                $data['tarif'],
+                $data['statut'],
+                $data['delaiLivraison'] ?? null,
+                $data['assuranceIncluse'] ?? false
+            );
+        } elseif ($data['type'] === 'express') {
+            return new ColisExpress(
+                $data['id'],
+                $data['poids'],
+                $data['dimensions'],
+                $data['destination'],
+                $data['tarif'],
+                $data['statut'],
+                $data['priorite'] ?? null,
+                $data['livraisonUrgente'] ?? false
+            );
+        } else {
+            throw new \Exception("Type de colis inconnu : " . $data['type']);
+        }
+    }
+
+    protected function getData(): array
+    {
+        return $this->colis;
+    }
+
+    protected function setData(array $data): void
+    {
+        $this->colis = $data;
+    }
+}

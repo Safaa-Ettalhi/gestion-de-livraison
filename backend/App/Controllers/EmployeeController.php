@@ -9,7 +9,7 @@ use App\Services\Interfaces\EmployeeService;
 use Core\Decorators\Description;
 use Core\Decorators\Route;
 
-#[Route('/api/v1')]
+#[Route('/api/v1/employees')]
 class EmployeeController extends Controller implements ResourceController
 {
 
