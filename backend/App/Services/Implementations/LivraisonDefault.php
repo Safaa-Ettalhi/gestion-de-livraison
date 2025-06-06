@@ -44,16 +44,17 @@ class LivraisonDefault implements LivraisonService
             }
             $colisListe[] = $colis;
         }
-
+        
         $livraison = new Livraison(
             abs(crc32(uniqid())),
             $dateExpedition,
             $dateLivraisonPrevue,
             $statut,
+            0,
             $colisListe
-        );
+            );
+            $montant = $livraison->calculerMontantTotal($colisListe);
 
-        $livraison->calculerMontantTotal($colisListe);
 
         $this->livraisonRepository->save($livraison, $colisIds);
 
@@ -70,12 +71,29 @@ class LivraisonDefault implements LivraisonService
         throw new ErrorException("Livraison not found.");
     }
     $allowedFields = [
-        'colisIds',            
+        'colisListe',            
         'statut',
         'dateExpedition',
         'dateLivraisonPrevue',
-        
     ];
+
+    // colisListe are [numbers] check if colis is real in colis in db and if it is, add it to the colisListe
+        // if not, throw an exception
+    if (isset($data['colisListe']) && is_array($data['colisListe'])) {
+        $colisListe = [];
+        foreach ($data['colisListe'] as $colisId) {
+            $colis = $this->colisRepository->findById($colisId);
+            if (!$colis) {
+                throw new ErrorException("Colis avec ID $colisId introuvable.");
+            }
+            $colisListe[] = $colis;
+        }
+        $data['colisListe'] = $colisListe;
+    }
+    
+    
+
+
 
     $updateData = array_filter(
         $data,
@@ -87,14 +105,7 @@ class LivraisonDefault implements LivraisonService
         throw new \InvalidArgumentException("No valid fields provided for update.");
     }
 
-    if (isset($updateData['colisIds'])) {
-        foreach ($updateData['colisIds'] as $colisId) {
-            $colis = $this->colisRepository->findById($colisId);
-            if (!$colis) {
-                throw new ErrorException("Colis avec ID $colisId introuvable.");
-            }
-        }
-    }
+    error_log(print_r($updateData, true));
 
     $this->livraisonRepository->updateLivraison($livraisonId, $updateData);
 
@@ -109,7 +120,7 @@ class LivraisonDefault implements LivraisonService
             throw new ErrorException("Livraison not found.");
         }
 
-        if ($this->livraisonRepository->deleteLivraison($livraisonId)) {
+        if ($this->livraisonRepository->delete($livraisonId)) {
             return $livraison;
         }
 

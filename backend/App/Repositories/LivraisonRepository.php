@@ -38,34 +38,36 @@ class LivraisonRepository extends RepositoryCache
 
 public function updateLivraison(int $livraisonId, array $data): Livraison
 {
-    $livraison = $this->findById($livraisonId);
-    if (!$livraison) {
-        throw new \ErrorException("Livraison not found.");
+    if (!isset($this->livraisons[$livraisonId])) {
+        throw new \Exception("Livraison with ID $livraisonId not found.");
     }
+
+    $livraison = $this->mapper($this->livraisons[$livraisonId]);
+
     if (isset($data['dateExpedition'])) {
         $livraison->setDateExpedition($data['dateExpedition']);
     }
-
     if (isset($data['dateLivraisonPrevue'])) {
         $livraison->setDateLivraisonPrevue($data['dateLivraisonPrevue']);
     }
-
     if (isset($data['statut'])) {
         $livraison->setStatut($data['statut']);
     }
-
-    if (isset($data['colisIds']) && is_array($data['colisIds'])) {
-        $colisListe = [];
-        foreach ($data['colisIds'] as $colisId) {
-            $colis = $this->colisRepository->findById($colisId);
-            if (!$colis) {
-                throw new \ErrorException("Colis avec ID $colisId introuvable.");
-            }
-            $colisListe[] = $colis;
-        }
-        $livraison->calculerMontantTotal($colisListe);
+    if (isset($data['montantTotal'])) {
+        $livraison->setMontantTotal($data['montantTotal']);
     }
-    $this->save($livraison);
+
+    if (isset($data['colisListe']) && is_array($data['colisListe'])) {
+        $livraison->setColisListe($data['colisListe']);
+    }
+
+    if (isset($data['colisListe'])) {
+        $livraison->calculerMontantTotal($data['colisListe']);
+    }
+
+
+    $this->livraisons[$livraisonId] = $livraison;
+    $this->commit();
 
     return $livraison;
 }

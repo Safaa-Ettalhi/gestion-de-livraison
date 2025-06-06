@@ -51,7 +51,7 @@ class LivraisonController extends Controller
     try {
         $data = $this->request->all();
 
-        $colisIds = $data['colisIds'] ?? null;  
+        $colisIds = $data['colisListe'] ?? null;  
         $dateExpedition = $data['dateExpedition'] ?? null;
         $dateLivraisonPrevue = $data['dateLivraisonPrevue'] ?? null;
         $statut = $data['statut'] ?? \App\Models\Livraison::STATUT_EN_COURS;

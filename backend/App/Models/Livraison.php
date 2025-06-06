@@ -9,7 +9,7 @@ class Livraison implements JsonSerializable
     private $dateExpedition;
     private $dateLivraisonPrevue;
     private $colisListe;
-    private $montantTotal;
+    private $montantTotal = 0;
     private $statut = self::STATUT_EN_COURS;
 
 
@@ -45,6 +45,7 @@ class Livraison implements JsonSerializable
     {
         return $this->id;
     }
+
 
     public function getDateExpedition()
     {
@@ -84,6 +85,12 @@ class Livraison implements JsonSerializable
     public function setStatut($statut)
     {
         $this->statut = $statut;
+    }
+
+    // setcolisListe 
+    public function setColisListe(array $colisListe)
+    {
+        $this->colisListe = $colisListe;
     }
 
     public function calculerMontantTotal(array $colisListe)
