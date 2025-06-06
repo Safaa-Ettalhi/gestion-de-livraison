@@ -16,17 +16,19 @@ class Livraison implements JsonSerializable
     public const STATUT_LIVREE = 'LIVREE';
     public const STATUT_ANNULEE = 'ANNULEE';
 
-    public function __construct($id, $dateExpedition, $dateLivraisonPrevue, $statut = self::STATUT_EN_COURS)
+    public function __construct($id, $dateExpedition, $dateLivraisonPrevue, $montantTotal, $statut = self::STATUT_EN_COURS)
     {
         $this->id = $id;
         $this->dateExpedition = $dateExpedition;
         $this->dateLivraisonPrevue = $dateLivraisonPrevue;
         $this->statut = $statut;
-        $this->montantTotal = 0;
+        $this->montantTotal = $montantTotal;
     }
 
     public function jsonSerialize(): array
     {
+        error_log(print_r($this, true));
+        
         return [
             'id' => $this->id,
             'dateExpedition' => $this->dateExpedition,

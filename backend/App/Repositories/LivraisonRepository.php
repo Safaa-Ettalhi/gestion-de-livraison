@@ -92,6 +92,9 @@ private function mapper(array $data): Livraison
         }
     }
 
+    // log $data for debugging
+    // error_log(print_r($data, true));
+
     $livraison = new Livraison(
         $data['id'] ?? null,
         $data['dateExpedition'] ?? null,
