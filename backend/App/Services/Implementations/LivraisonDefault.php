@@ -19,6 +19,7 @@ class LivraisonDefault implements LivraisonService
 
     public function getLivraison(int $id): Livraison
     {
+        error_log(print_r($this->livraisonRepository, true));
         $livraison = $this->livraisonRepository->findById($id);
         if (!$livraison) {
             throw new ErrorException("Livraison not found.");
@@ -28,6 +29,7 @@ class LivraisonDefault implements LivraisonService
 
     public function getLivraisons(?array $filters): array
     {
+
         return $this->livraisonRepository->findAll();
     }
 
@@ -47,7 +49,8 @@ class LivraisonDefault implements LivraisonService
             abs(crc32(uniqid())),
             $dateExpedition,
             $dateLivraisonPrevue,
-            $statut
+            $statut,
+            $colisListe
         );
 
         $livraison->calculerMontantTotal($colisListe);

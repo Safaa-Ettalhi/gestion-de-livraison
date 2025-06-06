@@ -101,7 +101,7 @@ private function mapper(array $data): Livraison
         $data['dateLivraisonPrevue'] ?? null,
         $data['statut'] ?? null,
         $data['montantTotal'] ?? 0,
-        $colisListe
+        $data['colisListe'] ?? $colisListe
     );
 
     return $livraison;
