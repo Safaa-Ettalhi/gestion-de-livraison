@@ -3,6 +3,9 @@ namespace App\Services\Implementations;
 
 use App\Models\Colis;
 use App\Repositories\ColisRepository;
+use App\Repositories\LivraisonRepository;
+use App\Repositories\ExpediteurRepository;
+use App\Models\Expediteur;
 use App\Services\Interfaces\ColisService;
 use ErrorException;
 use App\Models\ColisStandard;
@@ -12,7 +15,9 @@ use App\Models\ColisExpress;
 class ColisDefault implements ColisService
 {
     public function __construct(
-        private ColisRepository $colisRepository = new ColisRepository()
+        private ColisRepository $colisRepository = new ColisRepository(),
+        private LivraisonRepository $livraisonRepository = new LivraisonRepository(),
+        private ExpediteurRepository $expediteurRepository = new ExpediteurRepository()
     ) {}
 
     public function getColis(int $id): Colis
@@ -28,6 +33,13 @@ class ColisDefault implements ColisService
     {
         return $this->colisRepository->findAllColis();
     }
+    
+    public function getAllColisNotUsedInLivraison(?array $filters): array
+    {
+        return $this->colisRepository->findAllColis();   
+    }
+
+
 
 
 
@@ -43,6 +55,12 @@ public function createColis(array $data): Colis
     $destination = $data['destination']  ?? '';
     $tarif       = $data['tarif']        ?? 0;
     $statut      = $data['statut']       ?? 'en attente';
+    $expediteur = $data['expediteur'] ?? false;
+
+    if ($expediteur) {
+        $expediteur = $this->expediteurRepository->findById($expediteur);
+    }
+    
 
     if ($type === 'standard') {
         $colis = new ColisStandard(
@@ -53,7 +71,8 @@ public function createColis(array $data): Colis
             $tarif,
             $statut,
             $data['delaiLivraison']    ?? '',
-            $data['assuranceIncluse']  ?? false
+            $data['assuranceIncluse']  ?? false,
+            $expediteur
         );
     } elseif ($type === 'express') {
         $colis = new ColisExpress(
@@ -64,7 +83,8 @@ public function createColis(array $data): Colis
             $tarif,
             $statut,
             $data['priorite']          ?? '',
-            $data['livraisonUrgente']  ?? false
+            $data['livraisonUrgente']  ?? false,
+            $expediteur
         );
     } else {
         throw new \InvalidArgumentException("Type de colis inconnu : $type");
@@ -86,8 +106,8 @@ public function createColis(array $data): Colis
 
     $allowedFields = [
         'description', 'poids', 'expediteurId', 'dimensions', 'destination', 'tarif', 'statut', 'type',
-        'delaiLivraison', 'assuranceIncluse',   
-        'priorite', 'livraisonUrgente'          
+        'delaiLivraison', 'assuranceIncluse',
+        'priorite', 'livraisonUrgente'
     ];
 
     $updateData = array_filter(
@@ -118,5 +138,10 @@ public function createColis(array $data): Colis
         }
 
         throw new ErrorException("Failed to delete colis.");
+    }
+
+    public function deleteAllColis(): void
+    {
+        $this->colisRepository->deleteAllColis();
     }
 }
