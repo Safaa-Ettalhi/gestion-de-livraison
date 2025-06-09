@@ -10,9 +10,14 @@ abstract class Colis implements JsonSerializable
     protected $dimensions;
     protected $destination;
     protected $tarif;
-    protected $statut;
+    protected $statut= self::EN_ATTENTE;
+    protected $expediteur;
+    public const EN_ATTENTE = 'EN_ATTENTE';
+    public const EN_COURS = 'EN_COURS';
+    public const LIVRE = 'LIVRE';
+    public const ANNULE = 'ANNULE';
 
-    public function __construct($id, $poids, $dimensions, $destination, $tarif, $statut)
+    public function __construct($id, $poids, $dimensions, $destination, $tarif, $statut, $expediteur)
     {
         $this->id = $id;
         $this->poids = $poids;
@@ -20,6 +25,7 @@ abstract class Colis implements JsonSerializable
         $this->destination = $destination;
         $this->tarif = $tarif;
         $this->statut = $statut;
+        $this->expediteur = $expediteur;
     }
 
     public function jsonSerialize(): array
@@ -31,7 +37,8 @@ abstract class Colis implements JsonSerializable
             'destination' => $this->destination,
             'tarif' => $this->tarif,
             'statut' => $this->statut,
-            'type' => $this->getType()
+            'type' => $this->getType(),
+            'expediteur' => $this->expediteur
         ];
     }
 
