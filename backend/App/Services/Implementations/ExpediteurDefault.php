@@ -26,15 +26,26 @@ class ExpediteurDefault implements ExpediteurService
         return $this->expediteurRepository->findAll();
     }
 
-    public function createExpediteur(string $nom, string $email, string $telephone, string $adresse): Expediteur
-    {
-        $expediteur = new Expediteur(abs(crc32(uniqid())), $nom, $email, $telephone, $adresse);
+    public function createExpediteur(string $nom, string $email, string $telephone,string $adresse ): Expediteur
+    {  
+        if ($this->expediteurRepository->findByEmail($email) !== null) {
+            throw new ErrorException("Un expéditeur avec cet email existe déjà.");
+        }
+
+        if ($this->expediteurRepository->findByPhone($telephone) !== null) {
+            throw new ErrorException("Un expéditeur avec ce numéro de téléphone existe déjà.");
+        }
+        $id = abs(crc32(uniqid()));
+
+        $expediteur = new Expediteur($id, $nom, $email, $telephone, $adresse);
         if ($this->expediteurRepository->save($expediteur)) {
             return $expediteur;
         }
+
         throw new ErrorException("Impossible de créer l'expéditeur.");
     }
 
+    
     public function updateExpediteur(int $id, array $data): Expediteur
     {
         $expediteur = $this->expediteurRepository->findById($id);
