@@ -25,6 +25,8 @@ class ColisController extends Controller
     {
         try {
             $colis = $this->colisService->getColis((int)$colisId);
+
+            
             return $this->json($colis);
         } catch (\Exception $e) {
             return $this->json(['error' => $e->getMessage()], 404);
@@ -37,7 +39,7 @@ class ColisController extends Controller
     {
         try {
             $filters = $this->request->input('filters', null);
-            $colisList = $this->colisService->getAllColis($filters);
+            $colisList = $this->colisService->getAllColisNotUsedInLivraison($filters);
             return $this->json($colisList);
         } catch (\Exception $e) {
             return $this->json(['error' => $e->getMessage()], 500);
@@ -46,7 +48,6 @@ class ColisController extends Controller
 
     #[Route('', method: RouteMethod::POST)]
     #[Description("Créer un nouveau colis.")]
- 
     public function createColis()
 {
     $requestBody = file_get_contents('php://input');
@@ -58,13 +59,59 @@ class ColisController extends Controller
         return;
     }
 
+    // Validation des données
+    if (!in_array($data['type'], ['standard', 'express'])) {
+        http_response_code(400);
+        echo json_encode(['error' => "Type de colis invalide : {$data['type']}"]);
+        return;
+    }
+
+    if (empty($data['expediteur'])) {
+        http_response_code(400);
+        echo json_encode(['error' => "Le champ 'expediteur' est obligatoire."]);
+        return;
+    }
+
+    if (empty($data['poids']) || !is_numeric($data['poids'])) {
+        http_response_code(400);
+        echo json_encode(['error' => "Le champ 'poids' est obligatoire et doit être un nombre."]);
+        return;
+    }
+
+    if (empty($data['dimensions'])) {
+        http_response_code(400);
+        echo json_encode(['error' => "Le champ 'dimensions' est obligatoire."]);
+        return;
+    }
+
+
+    if (empty($data['destination'])) {
+        http_response_code(400);
+        echo json_encode(['error' => "Le champ 'destination' est obligatoire."]);
+        return;
+    }
+
+
+    if (empty($data['tarif']) || !is_numeric($data['tarif'])) {
+        http_response_code(400);
+        echo json_encode(['error' => "Le champ 'tarif' est obligatoire et doit être un nombre."]);
+        return;
+    }
+
+    if (empty($data['statut'])) {
+        http_response_code(400);
+        echo json_encode(['error' => "Le champ 'statut' est obligatoire."]);
+        return;
+    }
+
+    
+
 
     $colisData = [
-        'expediteurId'      => $data['expediteurId']      ?? null,
+        'expediteur'      => $data['expediteur']      ?? null,
         'poids'             => $data['poids']             ?? 0,
         'dimensions'        => $data['dimensions']        ?? '',
         'destination'       => $data['destination']       ?? '',
-      
         'tarif'             => $data['tarif']             ?? 0,
         'statut'            => $data['statut']            ?? 'en attente',
         'type'              => $data['type'],
@@ -83,35 +130,9 @@ class ColisController extends Controller
         return;
     }
 
-     /*
-               {
-       
-        "poids": 3.5,
-        "dimensions": "30x20x10",
-        "destination": "casablanca, Maroc",
-        "tarif": 15,
-        "statut": "en attente",
-        "type": "express",
-        "priorite": "1",
-        "livraisonUrgente": true
-    }
-        or
-    {
-       
-        "poids": 2.5,
-        "dimensions": "30x20x10",
-        "destination": "Paris, France",
-        "tarif": 19,
-        "statut": "en attente",
-        "type": "standard",
-        "delaiLivraison": "5 jours",
-        "assuranceIncluse": true
-    }
-            */
     try {
         $colis = $this->colisService->createColis($colisData);
-        http_response_code(201);
-        echo json_encode($colis);
+        return $this->json($colis, 201);
     } catch (\Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
@@ -143,4 +164,17 @@ class ColisController extends Controller
             return $this->json(['error' => $e->getMessage()], 400);
         }
     }
+
+    #[Route('deleteAll', method: RouteMethod::DELETE)]
+    #[Description("Supprimer tous les colis.")]
+    public function deleteAllColis()
+    {
+        try {
+            $deletedCount = $this->colisService->deleteAllColis();
+            return $this->json(['deletedCount' => $deletedCount]);
+        } catch (\Exception $e) {
+            return $this->json(['error' => $e->getMessage()], 400);
+        }
+    }
+
 }
