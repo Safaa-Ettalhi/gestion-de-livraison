@@ -15,4 +15,8 @@ interface ColisService
     public function updateColis(int $colisId, array $data): Colis;
 
     public function deleteColis(int $colisId): Colis;
+
+    public function getAllColisNotUsedInLivraison(?array $filters): array;
+
+    public function deleteAllColis(): void;
 }
