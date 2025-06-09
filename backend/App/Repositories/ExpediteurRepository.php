@@ -19,18 +19,77 @@ class ExpediteurRepository extends RepositoryCache
         return array_values($this->expediteurs);
     }
 
-    public function findById($id): ?Expediteur
-    {
-        $data = $this->expediteurs[$id] ?? null;
-        if (is_array($data)) {
-            return $this->mapper($data);
-        }
-
-        return $data instanceof Expediteur ? $data : null;
+    
+    
+    public function findById($expeditor): ?Expediteur
+{
+    if (is_array($expeditor)) {
+        $id = $expeditor['id'] ?? null;
+    } elseif ($expeditor instanceof Expediteur) {
+        $id = $expeditor->getId(); 
+    } else {
+        $id = $expeditor; 
     }
 
+    if ($id === null) {
+        return null;
+    }
+
+    $data = $this->expediteurs[$id] ?? null;
+
+    if (is_array($data)) {
+        return $this->mapper($data);
+    }
+
+    return $data instanceof Expediteur ? $data : null;
+}
+
+    
+    public function findByPhone(string $phone): ?Expediteur
+{
+    foreach ($this->expediteurs as $data) {
+        if (is_array($data)) {
+            $expediteur = $this->mapper($data);
+        } elseif ($data instanceof Expediteur) {
+            $expediteur = $data;
+        } else {
+            continue;
+        }
+        if ($this->normalizePhone($expediteur->getPhone()) === $this->normalizePhone($phone)) {
+            return $expediteur;
+        }
+    }
+    
+    return null;
+}
+
+
+
+private function normalizePhone(string $phone): string
+{
+    return preg_replace('/\s+/', '', $phone);
+}
+
+
+public function findByEmail(string $email): ?Expediteur
+{
+    foreach ($this->expediteurs as $data) {
+        if (is_array($data)) {
+            $expediteur = $this->mapper($data);
+        } elseif ($data instanceof Expediteur) {
+            $expediteur = $data;
+        } else {
+            continue;
+        }
+        if ($expediteur->getEmail() == $email) {
+            return $expediteur;
+        }
+    }
+    return null;
+}
+
     public function save(Expediteur $expediteur): bool
-    {
+    {   
         $this->expediteurs[$expediteur->getId()] = $expediteur;
         $this->commit();
         return true;
@@ -79,14 +138,21 @@ class ExpediteurRepository extends RepositoryCache
         return true;
     }
 
+    public function deleteAll(): bool
+    {
+        $this->expediteurs = [];
+        $this->commit();
+        return true;
+    }
+
     private function mapper(array $data): Expediteur
     {
         return new Expediteur(
             $data['id'],
             $data['nom'],
-            $data['adresse'],
+            $data['email'],
             $data['phone'],
-            $data['email']
+            $data['adresse'],
         );
     }
 
