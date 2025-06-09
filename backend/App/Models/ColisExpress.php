@@ -6,9 +6,9 @@ class ColisExpress extends Colis
     private $priorite;
     private $livraisonUrgente;
 
-    public function __construct($id, $poids, $dimensions, $destination, $tarif, $statut, $priorite, $livraisonUrgente)
+    public function __construct($id, $poids, $dimensions, $destination, $tarif, $statut, $priorite, $livraisonUrgente , $expediteur)
     {
-        parent::__construct($id, $poids, $dimensions, $destination, $tarif, $statut);
+        parent::__construct($id, $poids, $dimensions, $destination, $tarif, $statut, $expediteur);
         $this->priorite = $priorite;
         $this->livraisonUrgente = $livraisonUrgente;
     }
