@@ -29,8 +29,8 @@ class LivraisonDefault implements LivraisonService
 
     public function getLivraisons(?array $filters): array
     {
-
-        return $this->livraisonRepository->findAll();
+    $livraisons = $this->livraisonRepository->findAll($filters);
+    return array_reverse($livraisons);
     }
 
   
@@ -76,9 +76,6 @@ class LivraisonDefault implements LivraisonService
         'dateExpedition',
         'dateLivraisonPrevue',
     ];
-
-    // colisListe are [numbers] check if colis is real in colis in db and if it is, add it to the colisListe
-        // if not, throw an exception
     if (isset($data['colisListe']) && is_array($data['colisListe'])) {
         $colisListe = [];
         foreach ($data['colisListe'] as $colisId) {
