@@ -19,6 +19,23 @@ class LivraisonRepository extends RepositoryCache
         return array_values($this->livraisons);
     }
 
+    public function deleteAll(): void
+    {
+        $this->livraisons = [];
+        $this->commit();
+    }   
+
+    public function getColisListe(): array
+    {
+        $colisListe = [];
+        foreach ($this->livraisons as $livraison) {
+            if ($livraison instanceof Livraison) {
+                $colisListe = array_merge($colisListe, $livraison->getColisListe());
+            }
+        }
+        return $colisListe;
+    }
+
     public function findById($id): ?Livraison
     {
         $data = $this->livraisons[$id] ?? null;
@@ -94,8 +111,6 @@ private function mapper(array $data): Livraison
         }
     }
 
-    // log $data for debugging
-    // error_log(print_r($data, true));
 
     $livraison = new Livraison(
         $data['id'] ?? null,
