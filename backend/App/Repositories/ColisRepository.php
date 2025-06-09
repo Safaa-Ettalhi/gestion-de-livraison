@@ -6,14 +6,17 @@ use App\Models\Colis;
 use App\Models\ColisStandard;
 use App\Models\ColisExpress;
 use Core\Facades\RepositoryCache;
+use App\Repositories\ExpediteurRepository;
 
 class ColisRepository extends RepositoryCache
 {
     private array $colis = [];
+    private ExpediteurRepository $expediteurRepository;
 
     public function __construct()
     {
         parent::__construct();
+        $this->expediteurRepository = new ExpediteurRepository();
     }
 
     public function findAllColis(): array
@@ -24,6 +27,10 @@ class ColisRepository extends RepositoryCache
     public function findById($id): ?Colis
     {
         $data = $this->colis[$id] ?? null;
+        if (is_array($data) && isset($data['expediteur'])) {
+            $data['expediteur'] = $this->expediteurRepository->findById($data['expediteur']);
+        }
+
         if (is_array($data)) {
             return $this->mapper($data);
         }
@@ -91,6 +98,15 @@ class ColisRepository extends RepositoryCache
         return true;
     }
 
+
+
+    public function deleteAllColis(): bool
+    {
+        $this->colis = [];
+        $this->commit();
+        return true;
+    }
+
     public function saveColis(Colis $colis): bool
     {
         $this->colis[$colis->getId()] = $colis;
@@ -104,6 +120,10 @@ class ColisRepository extends RepositoryCache
             throw new \Exception("Type de colis non défini dans les données.");
         }
 
+        if (isset($data['expediteur'])) {
+            $data['expediteur'] = $this->expediteurRepository->findById($data['expediteur']);
+        }
+
         if ($data['type'] === 'standard') {
             return new ColisStandard(
                 $data['id'],
@@ -113,7 +133,8 @@ class ColisRepository extends RepositoryCache
                 $data['tarif'],
                 $data['statut'],
                 $data['delaiLivraison'] ?? null,
-                $data['assuranceIncluse'] ?? false
+                $data['assuranceIncluse'] ?? false,
+                $data['expediteur'] ?? null
             );
         } elseif ($data['type'] === 'express') {
             return new ColisExpress(
@@ -124,7 +145,8 @@ class ColisRepository extends RepositoryCache
                 $data['tarif'],
                 $data['statut'],
                 $data['priorite'] ?? null,
-                $data['livraisonUrgente'] ?? false
+                $data['livraisonUrgente'] ?? false,
+                $data['expediteur'] ?? null
             );
         } else {
             throw new \Exception("Type de colis inconnu : " . $data['type']);
