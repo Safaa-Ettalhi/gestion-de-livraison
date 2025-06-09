@@ -1,48 +1,61 @@
-const EditModal = ({ name = '', email = '', onEdit }) => {
+const EditLivraisonModal = ({ destinataire = '', adresse = '', dateLivraison = '', statut = '', onEdit }) => {
   const modal = document.createElement('div');
   modal.className = 'modal fade';
-  modal.id = 'editModal';
+  modal.id = 'editLivraisonModal';
   modal.tabIndex = -1;
   modal.setAttribute('aria-hidden', 'true');
 
   modal.innerHTML = `
-      <div class="modal-dialog">
-        <form id="editForm" class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Edit Employee</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal-dialog">
+      <form id="editLivraisonForm" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Modifier Livraison</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="editLivraisonId" />
+          
+          <div class="mb-3">
+            <label class="form-label">Destinataire</label>
+            <input type="text" id="editDestinataire" class="form-control" value="${destinataire}" />
           </div>
-          <div class="modal-body">
-            <input type="hidden" id="editId" />
-            <div class="mb-3">
-              <label class="form-label">Name</label>
-              <input type="text" id="editName" class="form-control" value="${name}" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Email</label>
-              <input type="email" id="editEmail" class="form-control" value="${email}" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Password</label>
-              <input type="password" id="editPassword" class="form-control" />
-              <span class="text-muted">Leave empty to keep current password</span>
-            </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Adresse</label>
+            <input type="text" id="editAdresse" class="form-control" value="${adresse}" />
           </div>
-          <div class="modal-footer">
-            <button class="btn btn-primary" type="submit">Save Changes</button>
+          
+          <div class="mb-3">
+            <label class="form-label">Date de Livraison</label>
+            <input type="date" id="editDateLivraison" class="form-control" value="${dateLivraison}" />
           </div>
-        </form>
-      </div>
-    `;
 
-  modal.querySelector('#editForm').addEventListener('submit', (e) => {
+          <div class="mb-3">
+            <label class="form-label">Statut</label>
+            <select id="editStatut" class="form-select">
+              <option value="en attente" ${statut === 'en attente' ? 'selected' : ''}>En attente</option>
+              <option value="en cours" ${statut === 'en cours' ? 'selected' : ''}>En cours</option>
+              <option value="livrée" ${statut === 'livrée' ? 'selected' : ''}>Livrée</option>
+              <option value="annulée" ${statut === 'annulée' ? 'selected' : ''}>Annulée</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" type="submit">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  modal.querySelector('#editLivraisonForm').addEventListener('submit', (e) => {
     e.preventDefault();
-    const updatedData = {
-      name: modal.querySelector('#editName').value,
-      email: modal.querySelector('#editEmail').value,
-      password: modal.querySelector('#editPassword').value || undefined,
+    const updatedLivraison = {
+      destinataire: modal.querySelector('#editDestinataire').value,
+      adresse: modal.querySelector('#editAdresse').value,
+      dateLivraison: modal.querySelector('#editDateLivraison').value,
+      statut: modal.querySelector('#editStatut').value
     };
-    onEdit(updatedData);
+    onEdit(updatedLivraison);
     const bsModal = bootstrap.Modal.getInstance(modal);
     bsModal.hide();
   });
@@ -50,4 +63,4 @@ const EditModal = ({ name = '', email = '', onEdit }) => {
   return modal;
 };
 
-export default EditModal;
+export default EditLivraisonModal;
