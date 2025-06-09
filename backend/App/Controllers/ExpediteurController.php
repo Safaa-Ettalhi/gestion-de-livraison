@@ -50,7 +50,6 @@ class ExpediteurController extends Controller
     {
         try {
             $data = $this->request->all();
-            
             $expediteur = $this->expediteurService->createExpediteur(
                 $data['nom'] ?? null,
                 $data['email'] ?? null,
@@ -61,7 +60,7 @@ class ExpediteurController extends Controller
             /*
             dummy json
             {
-                "name": "sa faa",
+                "nom": "sa faa",
                 "email": "yes@yess.com",
                 "phone": "1234567890",
                 "adresse": "123 safi, Morocco"
