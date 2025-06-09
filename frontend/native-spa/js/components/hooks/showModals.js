@@ -1,100 +1,107 @@
 import EditModal from '../EditModal.js';
-import SalaryModal from '../SalaryModal.js';
-import ShowModal from '../ShowModal.js';
-import EmployeeForm from '../EmployeeForm.js';
 import { showToast } from '../Toast.js'
 import { getFile, addEmployee, editEmployee, augmentSalary } from '../../api/employeeService.js';
-import { renderEmployeeTable } from '../EmployeeTable.js';
-export const showEditModal = (employee) => {
-    const existing = document.getElementById('editModal');
+import showModalLivraison, { showNewModalLivraison } from '../ShowLivraisonModal.js';
+import { showNewModalExpediteur } from '../ShowExpediteurModal.js';
+import { showNewModalColis } from '../showColisModal.js';
+
+
+export const showLivraisonFormModal = () => {
+    const existing = document.getElementById('livraisonFormModal');
     if (existing) existing.remove();
 
-    const modal = EditModal({
-        name: employee.name,
-        email: employee.email,
-        onEdit: async (updatedData) => {
-            const success = await editEmployee(employee.id, updatedData);
-            if (success) {
-                showToast('Employee updated!');
-                renderEmployeeTable();
-            } else {
-                showToast('Update failed.');
-            }
+    const modal = showNewModalLivraison({
+        onSubmit: async (livraison) => {
+            console.log('Livraison submitted:', livraison);
         }
     });
 
     document.body.appendChild(modal);
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
-};
+}
 
-export const showAugmentModal = (employee) => {
-    const existing = document.getElementById('salaryModal');
+export const showExpediteurFormModal = () => {
+    const existing = document.getElementById('expediteurFormModal');
+    if (existing) existing.remove();
+    const modal = showNewModalExpediteur({
+        onSubmit: async (expediteur) => {
+            console.log('Expéditeur submitted:', expediteur);
+        }
+    });
+    document.body.appendChild(modal);
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+
+}
+
+export const showColisFormModal = () => {
+    const existing = document.getElementById('colisFormModal');
+    if (existing) existing.remove();
+    const modal = showNewModalColis({
+        onSubmit: async (colis) => {
+            console.log('Colis submitted:', colis);
+        }
+    });
+    document.body.appendChild(modal);
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+}
+
+
+export const showExpeditorModal = () => {
+    const existing = document.getElementById('expediteurShowModal');
+    if (existing) existing.remove();
+    const modal = showNewModalExpediteur();
+    document.body.appendChild(modal);
+
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+}
+
+export const showLivraisonModal = (livraison) => {
+    const existing = document.getElementById('livraisonShowModal');
+        console.log('showLivraisonModal', livraison);
+
     if (existing) existing.remove();
 
-    const modal = SalaryModal({
-        id: employee.id,
-        name: employee.name,
-        currentSalary: employee.salary,
-        onSubmit: async ({ id, newSalary }) => {
-            const success = await augmentSalary(id, newSalary);
-            if (success) {
-                showToast('Salary updated');
-                renderEmployeeTable();
-            } else {
-                showToast('Salary update failed');
-            }
-
+    const modal = showModalLivraison({
+        id: livraison.id,
+        dateExpedition: livraison.dateExpedition,
+        dateLivraisonPrevue: livraison.dateLivraisonPrevue,
+        montantTotal: livraison.montantTotal,
+        statut: livraison.statut,
+        colisListe: livraison.colisListe || [],
+        onEdit: (liv) => {
+            console.log('Edit Livraison:', liv);
+        },
+        onDelete: (id) => {
+            console.log('Delete Livraison ID:', id);
         }
     });
 
     document.body.appendChild(modal);
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
-};
+}
 
-
-export const showEmployeeModal = (employee) => {
-    const existing = document.getElementById('employeeShowModal');
+export const showColisModal = (colisListe) => {
+    const existing = document.getElementById('colisShowModal');
     if (existing) existing.remove();
 
     const modal = ShowModal({
-        id: employee.id,
-        name: employee.name,
-        email: employee.email,
-        salary: employee.salary,
-        photo: getFile(employee.photo)
+        title: 'Liste des Colis',
+        content: colisListe.map(colis => `
+            <div class="colis-item">
+                <p><strong>ID:</strong> ${colis.id}</p>
+                <p><strong>Poids:</strong> ${colis.poids} kg</p>
+                <p><strong>Dimensions:</strong> ${colis.dimensions}</p>
+            </div>
+        `).join('')
     });
 
     document.body.appendChild(modal);
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
-};
-
-export const showEmployeeFormModal = () => {
-    const existing = document.getElementById('employeeModal');
-    if (existing) existing.remove();
-
-    const modal = EmployeeForm({
-        onSubmit: async (data) => {
-            const formData = new FormData();
-            formData.append('name', data.name);
-            formData.append('email', data.email);
-            formData.append('password', data.password);
-            formData.append('salary', data.salary);
-            formData.append('photo', data.photo);
-            const success = await addEmployee(formData);
-            if (success) {
-                showToast('Employee added successfully!');
-                renderEmployeeTable();
-            } else {
-                showToast('Failed to add employee.');
-            }
-        }
-    });
-
-    document.body.appendChild(modal);
-    const bsModal = new bootstrap.Modal(modal);
-    bsModal.show();
-};
+}
 
