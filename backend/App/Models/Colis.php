@@ -44,6 +44,7 @@ abstract class Colis implements JsonSerializable
 
     
     abstract public function getType();
+    abstract public function calculerMontant();
 
     public function getId()
     {

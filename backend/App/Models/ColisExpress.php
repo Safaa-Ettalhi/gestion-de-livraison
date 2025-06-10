@@ -45,5 +45,16 @@ class ColisExpress extends Colis
             'livraisonUrgente' => $this->livraisonUrgente,
         ]);
     }
+public function calculerMontant()
+{
+    $montant = $this->poids * $this->tarif;
+    $montant += 2;
+    if ($this->livraisonUrgente) {
+        $montant += 5;
+    }
+
+    return $montant;
+}
+
 }
 

@@ -38,6 +38,17 @@ class ColisStandard extends Colis
     {
         $this->assuranceIncluse = $assuranceIncluse;
     }
+public function calculerMontant()
+{
+    $montant = $this->poids * $this->tarif;
+
+    if ($this->assuranceIncluse) {
+        $montant += 3; 
+    }
+
+    return $montant;
+}
+
 
     public function jsonSerialize(): array
     {

@@ -93,13 +93,16 @@ class Livraison implements JsonSerializable
         $this->colisListe = $colisListe;
     }
 
-    public function calculerMontantTotal(array $colisListe)
-    {
-        $total = 0;
-        foreach ($colisListe as $colis) {
-            $total += $colis->getPoids() * $colis->getTarif();
-        }
-        $this->setMontantTotal($total);
+public function calculerMontantTotal(array $colisListe)
+{
+    $total = 0;
+
+    foreach ($colisListe as $colis) {
+        $total += $colis->calculerMontant(); 
     }
+
+    $this->setMontantTotal($total);
+}
+
 }
 
