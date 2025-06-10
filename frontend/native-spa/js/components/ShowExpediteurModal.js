@@ -87,7 +87,8 @@ export const showNewModalExpediteur = () => {
 
             const result = await response.json();
             console.log('Expéditeur créé avec succès:', result);
-            window.reloadTable()
+                        window.reloadAllTables?.();
+
             bsModal.hide();
 
         } catch (err) {

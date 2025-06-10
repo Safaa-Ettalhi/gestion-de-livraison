@@ -28,9 +28,9 @@ export const deleteLivraison = async (id) => {
 };
 
 
-export const editLivraison = async (id, data) => {
+export const updateLivraison = async (id, data) => {
     const response = await fetch(`${baseUrl}/api/v1/livraisons/${id}`, {
-        method: 'PATCH',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
     });

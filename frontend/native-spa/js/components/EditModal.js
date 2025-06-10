@@ -57,6 +57,7 @@ const EditLivraisonModal = ({ destinataire = '', adresse = '', dateLivraison = '
     };
     onEdit(updatedLivraison);
     const bsModal = bootstrap.Modal.getInstance(modal);
+            window.reloadAllTables?.();
     bsModal.hide();
   });
 

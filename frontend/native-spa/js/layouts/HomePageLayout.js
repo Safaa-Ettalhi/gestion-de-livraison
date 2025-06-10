@@ -28,15 +28,16 @@ const LivraisonPageLayout = (table) => {
         <!-- Buttons -->
         <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
           <div class="d-flex gap-2 flex-wrap">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#livraisonModal" id="addLivraisonBtn">
-              <i class="bi bi-plus-circle"></i> Ajouter Livraison
-            </button>
-            <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#colisModal" id="addColisBtn">
-              <i class="bi bi-box"></i> Ajouter Colis
-            </button>
-            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#expediteurModal" id="addExpediteurBtn">
-              <i class="bi bi-person-plus-fill"></i> Ajouter Expéditeur
-            </button>
+          ${
+            table === "livraison"
+              ? '<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#livraisonModal" id="addLivraisonBtn"><i class="bi bi-plus-circle"></i> Ajouter Livraison</button>'
+              : table === "colis"
+              ? '<button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#colisModal" id="addColisBtn"><i class="bi bi-box"></i> Ajouter Colis</button>'
+              : ' <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#expediteurModal" id="addExpediteurBtn"><i class="bi bi-person-plus-fill"></i> Ajouter Expéditeur</button>'
+          }
+            
+            
+           
           </div>
           <button class="btn btn-outline-secondary" id="reloadBtn">
             <i class="bi bi-arrow-clockwise"></i> Recharger
@@ -45,7 +46,7 @@ const LivraisonPageLayout = (table) => {
 
         <!-- Search -->
         <div class="mb-4">
-          <input type="text" id="searchInput" class="form-control" placeholder="🔍 Rechercher une livraison par statut (ex: EN_COURS)" />
+          <input type="text" id="searchInput" class="form-control" placeholder="Rechercher une livraison par statut (ex: EN_COURS)" />
         </div>
 
         <!-- Table Content -->

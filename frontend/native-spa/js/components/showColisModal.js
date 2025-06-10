@@ -45,13 +45,29 @@ export const showNewModalColis = () => {
                                     <option value="express">Express</option>
                                 </select>
                             </div>
-                            <div class="col-md-6 mb-3">
+
+                            <!-- Specific fields for ColisStandard -->
+                            <div class="col-md-6 mb-3 colis-standard-fields">
                                 <label class="form-label">Délai de Livraison</label>
-                                <input type="text" class="form-control" id="delaiLivraison" required>
+                                <input type="text" class="form-control" id="delaiLivraison" placeholder="ex: 3-5 jours">
                             </div>
-                            <div class="col-12 mb-3 form-check">
+                            <div class="col-12 mb-3 form-check colis-standard-fields">
                                 <input type="checkbox" class="form-check-input" id="assuranceIncluse">
                                 <label class="form-check-label" for="assuranceIncluse">Assurance incluse</label>
+                            </div>
+
+                            <!-- Specific fields for ColisExpress -->
+                            <div class="col-md-6 mb-3 colis-express-fields d-none">
+                                <label class="form-label">Priorité</label>
+                                <select class="form-select" id="priorite">
+                                    <option value="haute">Haute</option>
+                                    <option value="moyenne">Moyenne</option>
+                                    <option value="basse">Basse</option>
+                                </select>
+                            </div>
+                            <div class="col-12 mb-3 form-check colis-express-fields d-none">
+                                <input type="checkbox" class="form-check-input" id="livraisonUrgente">
+                                <label class="form-check-label" for="livraisonUrgente">Livraison Urgente</label>
                             </div>
 
                             <hr>
@@ -80,6 +96,39 @@ export const showNewModalColis = () => {
     document.body.appendChild(modal);
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
+
+    const form = modal.querySelector('#colisForm');
+    const typeSelect = form.querySelector('#type');
+    const colisStandardFields = modal.querySelectorAll('.colis-standard-fields');
+    const colisExpressFields = modal.querySelectorAll('.colis-express-fields');
+
+    const toggleColisTypeFields = () => {
+        const selectedType = typeSelect.value;
+
+        colisStandardFields.forEach(field => {
+            if (selectedType === 'standard') {
+                field.classList.remove('d-none');
+                field.querySelectorAll('input, select').forEach(input => input.removeAttribute('disabled'));
+            } else {
+                field.classList.add('d-none');
+                field.querySelectorAll('input, select').forEach(input => input.setAttribute('disabled', 'true'));
+            }
+        });
+
+        colisExpressFields.forEach(field => {
+            if (selectedType === 'express') {
+                field.classList.remove('d-none');
+                field.querySelectorAll('input, select').forEach(input => input.removeAttribute('disabled'));
+            } else {
+                field.classList.add('d-none');
+                field.querySelectorAll('input, select').forEach(input => input.setAttribute('disabled', 'true'));
+            }
+        });
+    };
+
+    toggleColisTypeFields();
+
+    typeSelect.addEventListener('change', toggleColisTypeFields);
 
     const searchInput = modal.querySelector('#searchExpediteur');
     const expediteurList = modal.querySelector('#expediteurList');
@@ -122,7 +171,6 @@ export const showNewModalColis = () => {
 
     modal.querySelector('#saveColisBtn').addEventListener('click', async (e) => {
         e.preventDefault();
-        const form = modal.querySelector('#colisForm');
         const errorContainer = modal.querySelector('#colisError');
         errorContainer.classList.add('d-none');
         errorContainer.textContent = '';
@@ -134,17 +182,24 @@ export const showNewModalColis = () => {
             return;
         }
 
-        const data = {
+        const colisType = typeSelect.value;
+        let data = {
             poids: parseFloat(form.poids.value),
             dimensions: form.dimensions.value.trim(),
             destination: form.destination.value.trim(),
             tarif: parseFloat(form.tarif.value),
-            type: form.type.value,
-            delaiLivraison: form.delaiLivraison.value.trim(),
-            assuranceIncluse: form.assuranceIncluse.checked,
+            type: colisType, 
             expediteur: parseInt(expediteurId),
             statut: 'en attente'
         };
+
+        if (colisType === 'standard') {
+            data.delaiLivraison = form.delaiLivraison.value.trim();
+            data.assuranceIncluse = form.assuranceIncluse.checked;
+        } else if (colisType === 'express') {
+            data.priorite = form.priorite.value;
+            data.livraisonUrgente = form.livraisonUrgente.checked;
+        }
 
         try {
             const response = await fetch(`${baseUrl}/api/v1/colis`, {
@@ -164,13 +219,13 @@ export const showNewModalColis = () => {
 
             const result = await response.json();
             console.log('Colis ajouté avec succès:', result);
-            window.reloadTable();
+            window.reloadAllTables?.();
             bsModal.hide();
 
         } catch (err) {
             errorContainer.classList.remove('d-none');
             errorContainer.textContent = 'Une erreur s’est produite lors de l’ajout du colis.';
-            console.log(err);
+            console.error('Erreur lors de l’ajout du colis:', err);
         }
     });
 

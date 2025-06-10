@@ -7,6 +7,7 @@ import { showNewModalColis } from '../showColisModal.js';
 
 
 export const showLivraisonFormModal = () => {
+    window.currentPage = 'livraison'
     const existing = document.getElementById('livraisonFormModal');
     if (existing) existing.remove();
 
@@ -36,6 +37,7 @@ export const showExpediteurFormModal = () => {
 }
 
 export const showColisFormModal = () => {
+    window.currentPage = 'colis'
     const existing = document.getElementById('colisFormModal');
     if (existing) existing.remove();
     const modal = showNewModalColis({
@@ -77,6 +79,7 @@ export const showLivraisonModal = (livraison) => {
         },
         onDelete: (id) => {
             console.log('Delete Livraison ID:', id);
+            alert('yesssssss')
         }
     });
 

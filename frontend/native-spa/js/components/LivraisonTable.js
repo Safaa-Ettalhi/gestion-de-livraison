@@ -3,7 +3,13 @@ import { showToast } from './Toast.js';
 import { showLivraisonModal, showColisModal } from './hooks/showModals.js';
 
 export const renderLivraisonTable = async (filter = '') => {
+    window.currentPage = "livraison"
     const tbody = document.getElementById('livraisonTable');
+
+    if (!tbody) {
+    console.warn('Le conteneur #livraisonTable est introuvable.');
+    return;
+  }
     tbody.innerHTML = '';
 
     const livraisons = await getLivraisons();
@@ -37,12 +43,8 @@ export const renderLivraisonTable = async (filter = '') => {
         showBtn.textContent = 'Voir';
         showBtn.addEventListener('click', () => showLivraisonModal(liv));
 
-        const colisBtn = document.createElement('button');
-        colisBtn.className = 'btn btn-secondary btn-sm';
-        colisBtn.textContent = 'Voir Colis';
-        colisBtn.addEventListener('click', () => showColisModal(liv.colisListe || []));
-
-        actionTd.append(showBtn, colisBtn);
+        
+        actionTd.append(showBtn);
         tr.append(idTd, expeditionTd, livraisonTd, montantTd, statutTd, colisCountTd, actionTd);
         tbody.appendChild(tr);
     });

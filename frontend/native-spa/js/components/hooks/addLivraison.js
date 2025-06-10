@@ -38,6 +38,7 @@ export default async function addLivraison(formData) {
             })
 
             console.log('Livraison data:', livraison);
+            window.reloadAllTables?.();
 
             bsModal.hide();
         } else {

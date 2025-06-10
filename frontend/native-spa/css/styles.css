@@ -1,11 +1,22 @@
 body {
   padding: 20px;
 }
+
 .employee-list {
   margin-top: 20px;
 }
+
 .img-thumbnail {
   width: 60px;
   height: 60px;
   object-fit: cover;
+}
+
+#colisContainer {
+  overflow-y: scroll;
+  max-height: 200px;
+}
+
+table {
+      text-wrap-mode: nowrap;
 }

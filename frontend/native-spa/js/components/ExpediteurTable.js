@@ -140,6 +140,7 @@ const handleDelete = async (expediteurId) => {
 };
 
 export const renderExpediteurTable = async (filter = '') => {
+    window.currentPage = "expediteur"
   const tbody = document.getElementById('expediteurTable');
   if (!tbody) {
     console.warn('Le conteneur #expediteurTable est introuvable.');

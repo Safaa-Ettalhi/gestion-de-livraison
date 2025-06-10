@@ -8,21 +8,6 @@ import HomePageLayout from './layouts/HomePageLayout.js'
 document.addEventListener('DOMContentLoaded', () => {
     const table = "livraison"
     init(table);
-    renderLivraisonTable();
-
-    const reloadBtn = document.getElementById('reloadBtn');
-    reloadBtn.addEventListener('click', () => {
-        renderLivraisonTable();
-        console.log('Table reloaded');
-        searchInput.value = '';
-    });
-
-    window.reloadTable = () => {
-        renderLivraisonTable();
-        console.log('Table reloaded');
-        
-    };
-
 });
 
 
@@ -46,9 +31,8 @@ const setupTabNavigation = () => {
         const tab = document.getElementById(tabId);
         if (tab) {
             tab.addEventListener('click', () => {
-                window.reloadTable?.(); 
-                init(table); 
-                render();
+                window.reloadTable?.();
+                init(table);
             });
         }
     });
@@ -73,12 +57,35 @@ const setupSearchInput = () => {
     const input = document.getElementById('searchInput');
     if (input) {
         input.addEventListener('input', () => {
-            renderLivraisonTable(input.value); 
+            renderLivraisonTable(input.value);
         });
     }
 };
 
+const setupRefrech = () => {
+    const reloadBtn = document.getElementById('reloadBtn');
+    reloadBtn.addEventListener('click', () => {
+        window.reloadAllTables?.();
+        searchInput.value = '';
+    });
+
+    window.reloadTable = () => {
+        renderLivraisonTable();
+        console.log('Table reloaded');
+    };
+
+
+    window.reloadAllTables = () => {
+        const page = window.currentPage || 'livraison';
+        if (page === 'livraison') return renderLivraisonTable();
+        if (page === 'colis') return renderColisTable();
+        if (page === 'expediteur') return renderExpediteurTable();
+        console.log('Table reloaded');
+    };
+}
+
 export const init = (table) => {
+    window.currentPage = table
     const root = document.getElementById('root');
     if (!root) return;
 
@@ -87,6 +94,7 @@ export const init = (table) => {
     setupTabNavigation();
     setupAddButtons();
     setupSearchInput();
+    setupRefrech();
 
     switch (table) {
         case 'livraison':
