@@ -34,9 +34,69 @@ class ColisDefault implements ColisService
         return $this->colisRepository->findAllColis();
     }
     
-    public function getAllColisNotUsedInLivraison(?array $filters): array
+    public function getAllUsedColis(?array $filters = null, ?string $skip = ""): array
+{
+    $allUsedColis = [];
+    $processedColisIds = [];
+    
+    $allLivraisons = array_filter(
+        $this->livraisonRepository->findAll(),
+        function ($livraison) use ($skip) {
+            $livraisonId = is_array($livraison) ? ($livraison['id'] ?? null) : $livraison->getId();            
+            return (string)$livraisonId != (string)$skip;
+        }
+    );
+
+    foreach ($allLivraisons as $livraison) {
+        $colisListForLivraison = is_array($livraison)
+            ? ($livraison['colisListe'] ?? [])
+            : ($livraison->colisListe ?? $livraison->getColisListe());
+
+        if (!is_iterable($colisListForLivraison)) {
+            continue;
+        }
+
+        foreach ($colisListForLivraison as $colis) {
+            $colisId = is_array($colis) ? ($colis['id'] ?? null) : $colis->getId();
+
+            if ($colisId && !isset($processedColisIds[$colisId])) {
+                $processedColisIds[$colisId] = true;
+                $colisObj = is_object($colis) ? $colis : $this->colisRepository->findById($colisId);
+
+                if ($colisObj instanceof Colis) {
+                    $allUsedColis[] = $colisObj;
+                }
+            }
+        }
+    }
+    if ($filters) {
+        if (isset($filters['destination'])) {
+            $allUsedColis = array_filter($allUsedColis, fn($colis) => $colis->getDestination() === $filters['destination']);
+        }
+    }
+
+    return array_values($allUsedColis);
+}
+
+    public function getAllColisNotUsedInLivraison(?array $filters = null, ?string $skip = ""): array
     {
-        return $this->colisRepository->findAllColis();   
+        $usedColisIds = [];
+        $allUsedColisObjects = $this->getAllUsedColis($filters, strtolower($skip)); 
+        foreach ($allUsedColisObjects as $colis) {
+            $usedColisIds[] = is_array($colis) ? $colis['id'] : $colis->getId();
+        }
+
+        $allColis = $this->colisRepository->findAllColis($filters);
+
+        $notUsedColis = [];
+        foreach ($allColis as $colis) {
+            $colisId = is_array($colis) ? $colis['id'] : $colis->getId();
+            if (!in_array($colisId, $usedColisIds)) {
+                $notUsedColis[] = $colis;
+            }
+        }
+
+        return $notUsedColis;
     }
 
 

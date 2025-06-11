@@ -18,20 +18,62 @@ class LivraisonDefault implements LivraisonService
     }
 
     public function getLivraison(int $id): Livraison
-    {
-        error_log(print_r($this->livraisonRepository, true));
-        $livraison = $this->livraisonRepository->findById($id);
-        if (!$livraison) {
-            throw new ErrorException("Livraison not found.");
-        }
-        return $livraison;
+{
+    $livraison = $this->livraisonRepository->findById($id);
+    if (!$livraison) {
+        throw new InvalidArgumentException("Livraison not found.");
     }
 
-    public function getLivraisons(?array $filters): array
-    {
-    $livraisons = $this->livraisonRepository->findAll($filters);
-    return array_reverse($livraisons);
+    $colisIds = array_map(fn($colis) => $colis['id'], $livraison->getColisListe());
+
+    $updatedColisListe = [];
+    foreach ($colisIds as $colisId) {
+        $colis = $this->colisRepository->findById($colisId);
+        if ($colis) {
+            $updatedColisListe[] = $colis;
+        }
     }
+
+    $livraison->setColisListe($updatedColisListe);
+    $livraison->calculerMontantTotal($updatedColisListe);
+
+    return $livraison;
+}
+
+
+    public function getLivraisons(?array $filters): array
+{
+    $livraisonsData = $this->livraisonRepository->findAll($filters);
+    $livraisons = [];
+
+    foreach ($livraisonsData as $livraisonData) {
+        $colisRawList = $livraisonData['colisListe'] ?? [];
+        $colisIds = array_map(fn($colis) => is_array($colis) ? $colis['id'] : $colis->getId(), $colisRawList);
+
+        $updatedColisListe = [];
+        foreach ($colisIds as $colisId) {
+            $colis = $this->colisRepository->findById($colisId);
+            if ($colis) {
+                $updatedColisListe[] = $colis;
+            }
+        }
+
+        $livraison = new Livraison(
+            $livraisonData['id'],
+            $livraisonData['dateExpedition'],
+            $livraisonData['dateLivraisonPrevue'],
+            $livraisonData['statut'],
+            $livraisonData['montantTotal'],
+            $updatedColisListe
+        );
+        $livraison->calculerMontantTotal($updatedColisListe);
+
+        $livraisons[] = $livraison;
+    }
+
+    return array_reverse($livraisons);
+}
+
 
   
  public function createLivraison(array $colisIds, string $dateExpedition, string $dateLivraisonPrevue, string $statut = Livraison::STATUT_EN_COURS): Livraison
