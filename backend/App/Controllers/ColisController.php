@@ -39,7 +39,15 @@ class ColisController extends Controller
     {
         try {
             $filters = $this->request->input('filters', null);
-            $colisList = $this->colisService->getAllColisNotUsedInLivraison($filters);
+            $unique = strtolower($_GET['unique'] ?? 'false');  
+            $skip = strtolower($_GET['skip'] ?? '');  
+
+            if ($unique === "true") {
+                $colisList = $this->colisService->getAllColisNotUsedInLivraison($filters, $skip);
+            } else {
+                $colisList = $this->colisService->getAllColis($filters);
+            }
+
             return $this->json($colisList);
         } catch (\Exception $e) {
             return $this->json(['error' => $e->getMessage()], 500);
@@ -59,7 +67,6 @@ class ColisController extends Controller
         return;
     }
 
-    // Validation des données
     if (!in_array($data['type'], ['standard', 'express'])) {
         http_response_code(400);
         echo json_encode(['error' => "Type de colis invalide : {$data['type']}"]);
