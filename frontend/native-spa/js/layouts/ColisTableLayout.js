@@ -96,6 +96,7 @@ const LivraisonPageLayout = () => {
         placeholder="Rechercher une livraison par statut (ex: EN_COURS)"
       />
     </div>
+    <div id="livraisonModal" ></div>
 
     ${LivraisonTableLayout()}
   `;

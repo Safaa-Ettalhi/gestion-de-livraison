@@ -77,11 +77,11 @@ export const showNewModalExpediteur = () => {
                 },
                 body: JSON.stringify(data)
             });
-
+        
             if (!response.ok) {
                 const error = await response.json();
                 errorContainer.classList.remove('d-none');
-                errorContainer.textContent = error.message || 'Erreur lors de la création de l’expéditeur.';
+                errorContainer.textContent = error.error || 'Erreur lors de la création de l’expéditeur.';
                 return;
             }
 

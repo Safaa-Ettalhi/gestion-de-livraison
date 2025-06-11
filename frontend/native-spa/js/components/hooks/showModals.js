@@ -1,6 +1,3 @@
-import EditModal from '../EditModal.js';
-import { showToast } from '../Toast.js'
-import { getFile, addEmployee, editEmployee, augmentSalary } from '../../api/employeeService.js';
 import showModalLivraison, { showNewModalLivraison } from '../ShowLivraisonModal.js';
 import { showNewModalExpediteur } from '../ShowExpediteurModal.js';
 import { showNewModalColis } from '../showColisModal.js';
@@ -62,11 +59,6 @@ export const showExpeditorModal = () => {
 }
 
 export const showLivraisonModal = (livraison) => {
-    const existing = document.getElementById('livraisonShowModal');
-        console.log('showLivraisonModal', livraison);
-
-    if (existing) existing.remove();
-
     const modal = showModalLivraison({
         id: livraison.id,
         dateExpedition: livraison.dateExpedition,
@@ -81,9 +73,9 @@ export const showLivraisonModal = (livraison) => {
             console.log('Delete Livraison ID:', id);
             alert('yesssssss')
         }
-    });
-
+    });    
     document.body.appendChild(modal);
+    document.querySelector("body > div:nth-child(14)")?.remove()
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
 }

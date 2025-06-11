@@ -2,11 +2,11 @@ import { deleteColis, getColis, updateColis } from '../api/colisService.js';
 import { showToast } from './Toast.js';
 
 let editColisBootstrapModal;
-let editForm; 
-let editTypeSelect; 
-let editColisStandardFields; 
-let editColisExpressFields; 
-let editStatutSelect; 
+let editForm;
+let editTypeSelect;
+let editColisStandardFields;
+let editColisExpressFields;
+let editStatutSelect;
 
 document.addEventListener('DOMContentLoaded', () => {
     const modalHTML = `
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         editTypeSelect = document.getElementById('editType');
         editColisStandardFields = document.querySelectorAll('.edit-colis-standard-fields');
         editColisExpressFields = document.querySelectorAll('.edit-colis-express-fields');
-        editStatutSelect = document.getElementById('editStatut'); 
+        editStatutSelect = document.getElementById('editStatut');
 
         editTypeSelect.addEventListener('change', toggleEditColisTypeFields);
     }
@@ -138,7 +138,7 @@ const handleEditColis = (colis) => {
     document.getElementById('editDestination').value = colis.destination || '';
     document.getElementById('editTarif').value = colis.tarif || '';
 
-   
+
     if (colis.priorite !== undefined && colis.priorite !== null) {
         editTypeSelect.value = 'express';
     } else {
@@ -154,12 +154,12 @@ const handleEditColis = (colis) => {
     } else if (editTypeSelect.value === 'express') {
         document.getElementById('editPriorite').value = colis.priorite || 'haute';
         document.getElementById('editLivraisonUrgente').checked = colis.livraisonUrgente || false;
-       
+
         document.getElementById('editDelaiLivraison').value = '';
         document.getElementById('editAssuranceIncluse').checked = false;
     }
 
-    editStatutSelect.value = colis.statut || 'en attente'; 
+    editStatutSelect.value = colis.statut || 'en attente';
 
     toggleEditColisTypeFields();
 
@@ -180,12 +180,12 @@ const handleEditColis = (colis) => {
 
         if (currentColisType === 'standard') {
             updatedData.assuranceIncluse = updatedData.assuranceIncluse === 'on';
-          
+
             delete updatedData.priorite;
             delete updatedData.livraisonUrgente;
         } else if (currentColisType === 'express') {
             updatedData.livraisonUrgente = updatedData.livraisonUrgente === 'on';
-         
+
             delete updatedData.delaiLivraison;
             delete updatedData.assuranceIncluse;
         }
@@ -220,7 +220,7 @@ export const renderColisTable = async (filter = '') => {
     try {
         const colisList = await getColis();
         const filtered = colisList.filter((colis) =>
-            colis.statut?.toLowerCase().includes(filter.toLowerCase()),
+            colis.id?.toString().includes(filter),
         );
 
         if (filtered.length === 0) {
@@ -261,12 +261,15 @@ export const renderColisTable = async (filter = '') => {
             } else if (colis.type === 'express') {
                 typeSpecificDetails = `Priorité: ${colis.priorite || 'N/A'}, Urgente: ${colis.livraisonUrgente ? 'Oui' : 'Non'}`;
             } else {
-                typeSpecificDetails = 'N/A'; 
+                typeSpecificDetails = 'N/A';
             }
             tr.appendChild(createTd(typeSpecificDetails));
 
+            const expediteurTd = document.createElement('td');
+            expediteurTd.innerHTML = `<a href="/#/expediteur?search=${encodeURIComponent(colis?.expediteur?.email)}">${colis.expediteur?.nom || colis.expediteur || 'N/A'}</a>`;
+
             tr.append(
-                createTd(colis.expediteur?.nom || colis.expediteur || 'N/A'),
+                expediteurTd,
                 createTd(colis.statut || ''),
             );
 

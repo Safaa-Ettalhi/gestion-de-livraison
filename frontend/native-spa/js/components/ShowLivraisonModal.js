@@ -15,7 +15,7 @@ export const showModalLivraison = (livraison, onEdit, onDelete) => {
         .map(
             colis => `
         <div class="border rounded p-2 mb-2 text-start">
-          <p><strong>ID:</strong> ${colis.id}</p>
+          <p><strong>ID:</strong> <a href="http://127.0.0.1:3000/#/colis?id=${colis.id}">${colis.id}</a></p>
           <p><strong>Poids:</strong> ${colis.poids} kg</p>
           <p><strong>Dimensions:</strong> ${colis.dimensions}</p>
           <p><strong>Destination:</strong> ${colis.destination}</p>
@@ -90,6 +90,9 @@ export const showModalLivraison = (livraison, onEdit, onDelete) => {
                     window.reloadAllTables()
 
                 }, 10)
+
+                showToast('Colis supprimée avec succès');
+
             } catch (err) {
                 document.getElementById('livraisonError').textContent = err.message;
                 document.getElementById('livraisonError').classList.remove('d-none');
@@ -166,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 export const showNewModalLivraison = async () => {
-    const response = await fetch(`${baseUrl}/api/v1/colis`);
+    const response = await fetch(`${baseUrl}/api/v1/colis?unique=true`);
     const allColis = await response.json(); 
 
 
@@ -319,7 +322,7 @@ export const showEditModalLivraison = async (livraisonToEdit) => {
     const existingEdit = document.getElementById('livraisonEditModal');
     if (existingEdit) existingEdit.remove();
 
-    const response = await fetch(`${baseUrl}/api/v1/colis`);
+    const response = await fetch(`${baseUrl}/api/v1/colis?unique=true&skip=${livraisonToEdit?.id}`);
     const allColis = await response.json(); 
     const existingColisIds = new Set(livraisonToEdit.colisListe.map(c => c.id));
 
@@ -498,7 +501,7 @@ export const showEditModalLivraison = async (livraisonToEdit) => {
 
 
             if (window.reloadAllTables) {
-                window.reloadAllTables();
+                location.reload()
             }
         } catch (err) {
             editErrorContainer.classList.remove('d-none');

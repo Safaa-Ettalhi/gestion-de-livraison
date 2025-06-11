@@ -9,13 +9,13 @@ const LivraisonPageLayout = (table) => {
       <div class="bg-light border-end p-3" style="width: 250px;">
         <h4 class="mb-4">Navigation</h4>
         <div class="nav flex-column gap-2">
-          <button class="btn btn-outline-primary w-100 d-flex align-items-center gap-2" id="livraisonTab">
+          <button class="btn btn-${table !== "livraison" ? "outline-" : ""}primary w-100 d-flex align-items-center gap-2" id="livraisonTab">
             <i class="bi bi-truck"></i> Livraisons
           </button>
-          <button class="btn btn-outline-primary w-100 d-flex align-items-center gap-2" id="colisTab">
+          <button class="btn btn-${table !== "colis" ? "outline-" : ''}primary w-100 d-flex align-items-center gap-2" id="colisTab">
             <i class="bi bi-box-seam"></i> Colis
           </button>
-          <button class="btn btn-outline-primary w-100 d-flex align-items-center gap-2" id="expediteurTab">
+          <button class="btn btn-${table !== "expediteur" ? "outline-" : ''}primary w-100 d-flex align-items-center gap-2" id="expediteurTab">
             <i class="bi bi-person-lines-fill"></i> Expéditeurs
           </button>
         </div>
@@ -23,7 +23,7 @@ const LivraisonPageLayout = (table) => {
 
       <!-- Main content -->
       <div class="flex-grow-1 p-4">
-        <h1 class="text-center mb-4">Gestion des ${table === 'colis' ? "colis" : table}s</h1>
+        <h1 class="text-center mb-4">Gestion des ${table === 'colis' ? "coli" : table}s</h1>
 
         <!-- Buttons -->
         <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
@@ -45,9 +45,10 @@ const LivraisonPageLayout = (table) => {
         </div>
 
         <!-- Search -->
-        <div class="mb-4">
-          <input type="text" id="searchInput" class="form-control" placeholder="Rechercher une livraison par statut (ex: EN_COURS)" />
-        </div>
+        ${table === "livraison" ? '<div class="mb-4"><input type="text" id="searchInput" class="form-control" placeholder="Rechercher une livraison par statut (ex: EN_COURS)" /></div>' : '' }
+        ${table === "colis" ? '<div class="mb-4"><input type="text" id="searchInputColis" class="form-control" placeholder="Rechercher un colis par id" /></div>' : '' }
+        ${table === "expediteur" ? '<div class="mb-4"><input type="text" id="searchInputExpediteur" class="form-control" placeholder="Rechercher un expediteue par id" /></div>' : '' }
+        
 
         <!-- Table Content -->
         <div>
