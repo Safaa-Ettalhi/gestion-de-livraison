@@ -77,6 +77,11 @@ class Livraison implements JsonSerializable
         $this->montantTotal = $montantTotal;
     }
 
+    public function getColisListe(): array
+{
+    return $this->colisListe;
+}
+
     public function getStatut()
     {
         return $this->statut;
@@ -87,7 +92,6 @@ class Livraison implements JsonSerializable
         $this->statut = $statut;
     }
 
-    // setcolisListe 
     public function setColisListe(array $colisListe)
     {
         $this->colisListe = $colisListe;
