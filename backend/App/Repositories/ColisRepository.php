@@ -7,6 +7,7 @@ use App\Models\ColisStandard;
 use App\Models\ColisExpress;
 use Core\Facades\RepositoryCache;
 use App\Repositories\ExpediteurRepository;
+use App\Repositories\LivraisonRepository;
 
 class ColisRepository extends RepositoryCache
 {
@@ -27,6 +28,7 @@ class ColisRepository extends RepositoryCache
     public function findById($id): ?Colis
     {
         $data = $this->colis[$id] ?? null;
+
         if (is_array($data) && isset($data['expediteur'])) {
             $data['expediteur'] = $this->expediteurRepository->findById($data['expediteur']);
         }
@@ -40,7 +42,6 @@ class ColisRepository extends RepositoryCache
 
     public function updateColis($id, array $data): bool
     {
-
         if (!isset($this->colis[$id])) {
             return false;
         }
@@ -63,7 +64,6 @@ class ColisRepository extends RepositoryCache
             $colis->setStatut($data['statut']);
         }
 
-      
         if ($colis instanceof ColisStandard) {
             if (isset($data['delaiLivraison'])) {
                 $colis->setDelaiLivraison($data['delaiLivraison']);
@@ -98,8 +98,6 @@ class ColisRepository extends RepositoryCache
         return true;
     }
 
-
-
     public function deleteAllColis(): bool
     {
         $this->colis = [];
@@ -113,6 +111,37 @@ class ColisRepository extends RepositoryCache
         $this->commit();
         return true;
     }
+
+public function findAllNotInLivraison(?array $filters, LivraisonRepository $livraisonRepository): array
+{
+    $allColis = $this->findAllColis();
+    $livraisons = $livraisonRepository->findAll();
+
+    $usedColisIds = [];
+
+    foreach ($livraisons as $livraison) {
+        $colisListe = $livraison->getColisListe(); 
+        foreach ($colisListe as $colis) {
+            $usedColisIds[] = is_object($colis) ? $colis->getId() : ($colis['id'] ?? null);
+        }
+    }
+
+    $usedColisIds = array_filter(array_unique($usedColisIds));
+
+    $colisNotInLivraison = array_filter($allColis, function ($colis) use ($usedColisIds) {
+        return !in_array($colis->getId(), $usedColisIds);
+    });
+    if ($filters) {
+        if (isset($filters['destination'])) {
+            $colisNotInLivraison = array_filter($colisNotInLivraison, function ($colis) use ($filters) {
+                return $colis->getDestination() === $filters['destination'];
+            });
+        }
+    }
+
+    return array_values($colisNotInLivraison);
+}
+
 
     private function mapper(array $data): Colis
     {
