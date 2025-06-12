@@ -7,6 +7,7 @@ export const getColis = async () => {
 
 export const updateColis = async (id, data) => {
   try {
+    console.log({data})
     const response = await fetch(`${baseUrl}/api/v1/colis/${id}`, {
       method: 'PUT',
       headers: {

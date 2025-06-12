@@ -161,6 +161,9 @@ const handleEditColis = (colis) => {
 
     editStatutSelect.value = colis.statut || 'en attente';
 
+    editTypeSelect.dispatchEvent(new Event('change'));
+
+
     toggleEditColisTypeFields();
 
     editColisBootstrapModal.show();
@@ -177,6 +180,7 @@ const handleEditColis = (colis) => {
 
         const currentColisType = editTypeSelect.value;
         updatedData.type = currentColisType;
+        console.log(updatedData.type)
 
         if (currentColisType === 'standard') {
             updatedData.assuranceIncluse = updatedData.assuranceIncluse === 'on';
@@ -192,11 +196,11 @@ const handleEditColis = (colis) => {
 
 
         try {
-            await updateColis(colis.id, updatedData);
+            await updateColis(colis.id, {...updatedData , type :currentColisType });
             showToast('Colis mis à jour avec succès');
             editColisBootstrapModal.hide();
-            if (window.renderColisTable) {
-                window.renderColisTable();
+            if (window.reloadAllTables) { 
+                window.reloadAllTables();
             } else {
                 console.warn("window.renderColisTable is not defined. Table may not refresh.");
             }

@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 export const showNewModalLivraison = async () => {
-    const response = await fetch(`${baseUrl}/api/v1/colis?unique=true`);
+    const response = await fetch(`${baseUrl}/api/v1/colis?unique=true&skip=""`);
     const allColis = await response.json(); 
 
 
@@ -316,7 +316,13 @@ export const showNewModalLivraison = async () => {
 };
 
 export const showEditModalLivraison = async (livraisonToEdit) => {
-    document.querySelector("body > div.modal-backdrop.fade.show").remove()
+     const modals = document.querySelectorAll('.modal.show');
+        modals.forEach((modal) => {
+            const instance = bootstrap.Modal.getInstance(modal);
+            if (instance) {
+                instance.hide();
+            }
+        });
     const existingNew = document.getElementById('livraisonNewModal');
     if (existingNew) existingNew.remove();
     const existingEdit = document.getElementById('livraisonEditModal');
@@ -493,14 +499,17 @@ export const showEditModalLivraison = async (livraisonToEdit) => {
             await updateLivraison(livraisonToEdit.id, updatedLivraisonData);
             console.log('Livraison updated successfully:', updatedLivraisonData);
             showToast('Livraison mise à jour avec succès!');
-            const modalEdit = document.querySelector('#livraisonEditModal');
-            modalEdit.remove()
-            document.querySelectorAll('.modal-backdrop.fade.show').forEach(backdrop => {
-                backdrop.remove();
-            });
+            const modals = document.querySelectorAll('.modal.show');
+        modals.forEach((modal) => {
+            const instance = bootstrap.Modal.getInstance(modal);
+            if (instance) {
+                instance.hide();
+            }
+        });
 
 
             if (window.reloadAllTables) {
+                window.reloadAllTables()
                 location.reload()
             }
         } catch (err) {
