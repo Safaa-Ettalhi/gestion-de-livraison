@@ -55,6 +55,7 @@ public function calculerMontant()
         return array_merge(parent::jsonSerialize(), [
             'delaiLivraison' => $this->delaiLivraison,
             'assuranceIncluse' => $this->assuranceIncluse,
+            'type'=>$this->getType()
         ]);
     }
 }

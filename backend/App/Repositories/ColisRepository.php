@@ -41,50 +41,55 @@ class ColisRepository extends RepositoryCache
     }
 
     public function updateColis($id, array $data): bool
-    {
-        if (!isset($this->colis[$id])) {
-            return false;
-        }
-
-        $colis = $this->mapper($this->colis[$id]);
-
-        if (isset($data['poids'])) {
-            $colis->setPoids($data['poids']);
-        }
-        if (isset($data['dimensions'])) {
-            $colis->setDimensions($data['dimensions']);
-        }
-        if (isset($data['destination'])) {
-            $colis->setDestination($data['destination']);
-        }
-        if (isset($data['tarif'])) {
-            $colis->setTarif($data['tarif']);
-        }
-        if (isset($data['statut'])) {
-            $colis->setStatut($data['statut']);
-        }
-
-        if ($colis instanceof ColisStandard) {
-            if (isset($data['delaiLivraison'])) {
-                $colis->setDelaiLivraison($data['delaiLivraison']);
-            }
-            if (isset($data['assuranceIncluse'])) {
-                $colis->setAssuranceIncluse($data['assuranceIncluse']);
-            }
-        } elseif ($colis instanceof ColisExpress) {
-            if (isset($data['priorite'])) {
-                $colis->setPriorite($data['priorite']);
-            }
-            if (isset($data['livraisonUrgente'])) {
-                $colis->setLivraisonUrgente($data['livraisonUrgente']);
-            }
-        }
-
-        $this->colis[$id] = $colis;
-        $this->commit();
-
-        return true;
+{
+    if (!isset($this->colis[$id])) {
+        return false;
     }
+
+    if (isset($data['type'])) {
+        $this->colis[$id]['type'] = $data['type']; 
+    }
+
+    $colis = $this->mapper($this->colis[$id]);
+
+    if (isset($data['poids'])) {
+        $colis->setPoids($data['poids']);
+    }
+    if (isset($data['dimensions'])) {
+        $colis->setDimensions($data['dimensions']);
+    }
+    if (isset($data['destination'])) {
+        $colis->setDestination($data['destination']);
+    }
+    if (isset($data['tarif'])) {
+        $colis->setTarif($data['tarif']);
+    }
+    if (isset($data['statut'])) {
+        $colis->setStatut($data['statut']);
+    }
+
+    if ($data['type'] === 'standard') {
+        if (isset($data['delaiLivraison'])) {
+            $colis->setDelaiLivraison($data['delaiLivraison']);
+        }
+        if (isset($data['assuranceIncluse'])) {
+            $colis->setAssuranceIncluse($data['assuranceIncluse']);
+        }
+    } elseif ($data['type'] === 'express') {
+        if (isset($data['priorite'])) {
+            $colis->setPriorite($data['priorite']);
+        }
+        if (isset($data['livraisonUrgente'])) {
+            $colis->setLivraisonUrgente($data['livraisonUrgente']);
+        }
+    }
+
+    $this->colis[$id] = $colis;
+    $this->commit();
+
+    return true;
+}
+
 
     public function deleteColis($id): bool
     {
@@ -153,7 +158,9 @@ public function findAllNotInLivraison(?array $filters, LivraisonRepository $livr
             $data['expediteur'] = $this->expediteurRepository->findById($data['expediteur']);
         }
 
+        error_log('hello: '.$data['type']);
         if ($data['type'] === 'standard') {
+            error_log("yes standard");
             return new ColisStandard(
                 $data['id'],
                 $data['poids'],
@@ -164,8 +171,9 @@ public function findAllNotInLivraison(?array $filters, LivraisonRepository $livr
                 $data['delaiLivraison'] ?? null,
                 $data['assuranceIncluse'] ?? false,
                 $data['expediteur'] ?? null
-            );
-        } elseif ($data['type'] === 'express') {
+                );
+            } elseif ($data['type'] === 'express') {
+            error_log("yes express");
             return new ColisExpress(
                 $data['id'],
                 $data['poids'],

@@ -43,6 +43,8 @@ class ColisExpress extends Colis
         return array_merge(parent::jsonSerialize(), [
             'priorite' => $this->priorite,
             'livraisonUrgente' => $this->livraisonUrgente,
+            'type'=>$this->getType()
+
         ]);
     }
 public function calculerMontant()
